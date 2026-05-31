@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Dataset files
+startup_funding.csv
+cleaned_startup_funding.csv
+2020-2025.csv
+app.py
+documents.py
