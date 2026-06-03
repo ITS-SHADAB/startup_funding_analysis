@@ -365,6 +365,90 @@ def load_investor(investor):
 
     
  
+# startup
+
+def startup_analysis(startup):
+    st.title(f"{startup} Analysis")
+
+    startup_df = df[df["startup"]==startup]
+
+    # Total Funding
+    total_funding=round(startup_df["amount"].sum(),2)
+
+    # Total Investor
+    total_investors = startup_df["investors"].str.split(",").explode().nunique()
+
+    # Industry
+    industry=startup_df["industry"].mode()[0]
+
+    # City
+    city = startup_df["city"].iloc[0]
+
+    col1,col2 = st.columns(2)
+
+    with col1:
+        st.metric("Total Funding", f"₹ {total_funding:,.0f} Cr")
+
+    with col2:
+        st.metric("Total Investors",total_investors)
+
+    col3,col4 = st.columns(2)
+
+    with col3:
+        st.metric("Which Industry",industry)
+
+    with col4:
+        st.metric("City",city)
+
+
+
+
+
+ 
+    col1,col2 = st.columns(2)
+    with col1:
+
+        st.subheader("Funding Timeline")
+
+        timeline = startup_df.sort_values("date")
+
+        fig = px.line(
+            timeline,
+            x="date",
+            y="amount",
+            title="Funding Timeline",
+            markers=True
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+
+        st.subheader("Funding Round Distribution")
+        round_ds=startup_df["round"].value_counts()
+
+        fig=px.pie(
+            names=round_ds.index,
+            values=round_ds.values,
+            title="Funding Rounds Distribution"
+        )
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    col3,col4 = st.columns(2)
+
+   
+    st.subheader("Investors List")
+    investor_detail = startup_df[["investors","round","amount","date"]].sort_values(by="date")
+
+    st.dataframe(investor_detail,hide_index=True)
+
+
+     
+
+
+
+
 
 
 
@@ -387,7 +471,11 @@ option = st.sidebar.selectbox(
 if option == "Overall Analysis":
     overall_analysis()
 elif option == "Startup":
-    st.title("this is startup")
+    startup=st.sidebar.selectbox("Select Startup",sorted(df["startup"].unique()))
+    btn1 = st.sidebar.button("Find Startup Detail")
+    if btn1:
+        startup_analysis(startup)
+
 else:
         investor = st.sidebar.selectbox(
         "Select Investor",
