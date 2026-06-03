@@ -461,28 +461,43 @@ def startup_analysis(startup):
 
 
 
-
 st.sidebar.title("Startup Funding Dashboard")
-option = st.sidebar.selectbox(
-    "Select Option",
-    ["Overall Analysis", "Startup", "Investor"]
+
+option = st.sidebar.radio(
+    "Navigate",
+    [
+        "Overall Analysis",
+        "Startup Analysis",
+        "Investor Analysis"
+    ]
 )
 
 if option == "Overall Analysis":
+
     overall_analysis()
-elif option == "Startup":
-    startup=st.sidebar.selectbox("Select Startup",sorted(df["startup"].unique()))
-    btn1 = st.sidebar.button("Find Startup Detail")
-    if btn1:
-        startup_analysis(startup)
 
-else:
-        investor = st.sidebar.selectbox(
-        "Select Investor",
-        sorted(set(df["investors"].dropna().str.split(",").explode().str.strip()))
+elif option == "Startup Analysis":
 
+    startup = st.sidebar.selectbox(
+        "Select Startup",
+        sorted(df["startup"].unique())
     )
-        btn2 = st.sidebar.button("Find Investor Details")
 
-        if btn2:
-            load_investor(investor)
+    startup_analysis(startup)
+
+elif option == "Investor Analysis":
+
+    investor = st.sidebar.selectbox(
+        "Select Investor",
+        sorted(
+            set(
+                df["investors"]
+                .dropna()
+                .str.split(",")
+                .explode()
+                .str.strip()
+            )
+        )
+    )
+
+    load_investor(investor)

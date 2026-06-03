@@ -12,6 +12,5 @@ env/
 # Dataset files
 startup_funding.csv
 cleaned_startup_funding.csv
-2020-2025.csv
 app.py
 documents.py
