@@ -39,6 +39,7 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
+# Overall Analysis
 def overall_analysis():
     st.title("Overall Startup Funding Analysis")
     total_funding = df["amount"].sum()
@@ -257,6 +258,123 @@ def overall_analysis():
 
     st.markdown("---")
 
+# investor
+def load_investor(investor):
+    st.title(f"{investor} Analysis")
+
+    # Filter all rows where the specified investor is present
+
+    investor_df=df[df["investors"].str.contains(investor,na=False)]
+
+    # RECENT INVESTMENTS 
+
+    st.subheader("Recent investment")
+
+    recent_inv=investor_df.head()[["date", "startup", "industry", "city", "round", "amount"]]
+
+    st.dataframe(recent_inv,use_container_width=True)
+
+    # BIGGEST INVESTMENTS 
+
+    col1,col2= st.columns(2)
+    with col1:
+        big_inv=investor_df.groupby("startup")["amount"].sum().sort_values(ascending=False).head()
+
+        st.subheader("Biggest Investment")
+        fig=px.bar(
+            x=big_inv.index,
+            y=big_inv.values,
+            labels={"x":"Startup","y":"Amount"}
+
+        )
+        fig.update_layout(template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+
+        industry_inv = (
+            investor_df
+            .groupby("industry")["amount"]
+            .sum()
+        )
+
+        st.subheader("Sector Wise Investments")
+
+        fig=px.pie(
+            names=industry_inv.index,
+            values=industry_inv.values
+        )
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    col3,col4=st.columns(2)
+
+    with col3:
+
+        st.subheader("stage wise investement")
+
+        stage_inv=investor_df.groupby("round")["amount"].sum()
+
+        fig=px.pie(
+            names=stage_inv.index,
+            values=stage_inv.values
+        )
+
+        fig.update_layout(template="plotly_dark")
+
+        st.plotly_chart(fig,use_container_width=True)
+
+    with col4:
+
+        st.subheader("city wise investment")
+        city_inv=investor_df.groupby("city")["amount"].sum()
+
+        fig=px.pie(
+            names=city_inv.index,
+            values=city_inv.values
+        )
+
+        fig.update_layout(template="plotly_dark")
+        st.plotly_chart(fig,use_container_width=True)
+
+    # ================= YOY GRAPH =================
+
+    yoy_inv = (
+        investor_df
+        .groupby("year")["amount"]
+        .sum()
+    )
+
+    st.subheader("📈 Year on Year Investments")
+
+    fig = px.line(
+        x=yoy_inv.index,
+        y=yoy_inv.values,
+        markers=True
+    )
+
+    fig.update_layout(
+        template="plotly_dark",
+        xaxis_title="Year",
+        yaxis_title="Investment Amount",
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+    
+ 
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -270,3 +388,13 @@ if option == "Overall Analysis":
     overall_analysis()
 elif option == "Startup":
     st.title("this is startup")
+else:
+        investor = st.sidebar.selectbox(
+        "Select Investor",
+        sorted(set(df["investors"].dropna().str.split(",").explode().str.strip()))
+
+    )
+        btn2 = st.sidebar.button("Find Investor Details")
+
+        if btn2:
+            load_investor(investor)
